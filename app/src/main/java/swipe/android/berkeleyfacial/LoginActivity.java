@@ -2,6 +2,7 @@ package swipe.android.berkeleyfacial;
 
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
@@ -31,12 +32,12 @@ import com.facebook.widget.LoginButton;
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 import butterknife.OnClick;
-import swipe.android.berkeleyfacial.api.tinder.TinderLoginResponse;
+import swipe.android.berkeleyfacial.api.tinder.LoginResponse;
 import swipe.android.berkeleyfacial.managers.APIManager;
 import swipe.android.berkeleyfacial.managers.SessionManager;
 
 public class LoginActivity extends FacialActivity implements
-        Response.Listener<TinderLoginResponse>{
+        Response.Listener<LoginResponse>{
 
 
     public static final int REGISTER_REQUEST_CODE = 100;
@@ -54,8 +55,12 @@ public class LoginActivity extends FacialActivity implements
         // Logs 'install' and 'app activate' App Events.
         AppEventsLogger.activateApp(this);
         Session session = Session.getActiveSession();
-        if(session != null && session.isOpened() && !isLoggingIn)
-            doFacebookLogin(session);
+        if(!SessionManager.getInstance(this).getToken().equals("")){
+            Intent i = new Intent(this, TinderBotActivity.class);
+            startActivity(i);
+            finish();
+        }
+
     }
     boolean isLoggingIn = false;
 
@@ -93,6 +98,26 @@ public class LoginActivity extends FacialActivity implements
         }
     }
 
+    public static void callFacebookLogout(Context context) {
+        Session session = Session.getActiveSession();
+        if (session != null) {
+
+            if (!session.isClosed()) {
+                session.closeAndClearTokenInformation();
+                // clear your preferences if saved
+            }
+        } else {
+
+            session = new Session(context);
+            Session.setActiveSession(session);
+
+            session.closeAndClearTokenInformation();
+            // clear your preferences if saved
+
+        }
+
+    }
+
     private void doFacebookLogin(final Session session) {
 
 
@@ -108,16 +133,15 @@ public class LoginActivity extends FacialActivity implements
 
                                 String fbId = user.getId();
                                 String fbName = user.getName();
-                                String accessToken= Session.getActiveSession().getAccessToken();
+                                String accessToken=
+                                 //Session.getActiveSession().getAccessToken();
                                 //want to get user token now
                                 SessionManager.getInstance(LoginActivity.this).setFacebookID(fbId);
                                 SessionManager.getInstance(LoginActivity.this).setFacebookToken(accessToken);
                                 SessionManager.getInstance(LoginActivity.this).setName(fbName);
 
-                                Log.d("FacebookID", fbId);
-                                Log.d("fbName", fbName);
-                                Log.d("accessToken", accessToken);
-                                APIManager.getInstance().signInTinder(
+
+                                APIManager.getInstance().signIn(
                                         LoginActivity.this, LoginActivity.this);
 
                             }
@@ -171,7 +195,14 @@ public class LoginActivity extends FacialActivity implements
     }
 
     @Override
-    public void onResponse(TinderLoginResponse tinderLoginResponse) {
+    public void onResponse(LoginResponse tinderLoginResponse) {
+if(tinderLoginResponse.token != null) {
+    SessionManager.getInstance(this).setToken(tinderLoginResponse.token);
+    Intent i = new Intent(this, SwipeActivity.class);
+    startActivity(i);
+    finish();
+}
 
     }
+
 }

@@ -1,1 +1,1 @@
-include ':app', ':edbertLibrary'
+include ':app', ':edbertLibrary', ':swipecardslib'

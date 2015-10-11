@@ -30,6 +30,7 @@ public class SessionManager {
     private static final String TOKEN = "token";
     private static final String ID = "id";
 
+    private static final String FB_TOKEN = "FB_TOKEN";
 
     //constructor. We set private mode b/c we dont want to share w/ other apps
     private SessionManager(Context c) {
@@ -51,7 +52,7 @@ public class SessionManager {
         editor.commit();
     }
     public void setFacebookToken(String token) {
-        editor.putString(TOKEN, token);
+        editor.putString(FB_TOKEN, token);
         editor.commit();
 
     }
@@ -74,7 +75,7 @@ public class SessionManager {
         return pref.getString(USER_NAME, "");
     }
     public String getFacebookToken(){
-        return pref.getString(TOKEN, "");
+        return pref.getString(FB_TOKEN, "");
     }
     public boolean getIsLoggedIn(){
         return pref.getBoolean(IS_LOGGED_IN, false);
@@ -82,6 +83,15 @@ public class SessionManager {
 
     public String getFacebookID(){
         return pref.getString(ID, "");
+    }
+
+    public void setToken(String token) {
+        editor.putString(TOKEN, token);
+        editor.commit();
+
+    }
+    public String getToken(){
+        return pref.getString(TOKEN , "");
     }
 
 }

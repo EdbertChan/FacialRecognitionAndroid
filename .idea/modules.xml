@@ -5,6 +5,7 @@
       <module fileurl="file://$PROJECT_DIR$/BerkeleyFacial.iml" filepath="$PROJECT_DIR$/BerkeleyFacial.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
       <module fileurl="file://$PROJECT_DIR$/edbertLibrary/edbertLibrary.iml" filepath="$PROJECT_DIR$/edbertLibrary/edbertLibrary.iml" />
+      <module fileurl="file://$PROJECT_DIR$/swipecardslib/swipecardslib.iml" filepath="$PROJECT_DIR$/swipecardslib/swipecardslib.iml" />
     </modules>
   </component>
 </project>

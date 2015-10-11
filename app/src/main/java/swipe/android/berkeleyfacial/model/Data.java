@@ -2,17 +2,19 @@ package swipe.android.berkeleyfacial.model;
 
 public class Data {
 
-    private String description;
-
     private String imagePath;
 
-    public Data(String imagePath, String description) {
-        this.imagePath = imagePath;
-        this.description = description;
-    }
+    private String id;
+    private boolean isrecommend;
 
-    public String getDescription() {
-        return description;
+    public Data(String imagePath, String id, boolean isrecommend) {
+        this.imagePath = imagePath;
+        this.id = id;
+        this.isrecommend = isrecommend;
+    }
+public boolean isIsrecommend(){return isrecommend;};
+    public String getId() {
+        return id;
     }
 
     public String getImagePath() {
