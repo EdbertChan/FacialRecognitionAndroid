@@ -55,11 +55,10 @@ public class LoginActivity extends FacialActivity implements
         // Logs 'install' and 'app activate' App Events.
         AppEventsLogger.activateApp(this);
         Session session = Session.getActiveSession();
-        if(!SessionManager.getInstance(this).getToken().equals("")){
-            Intent i = new Intent(this, TinderBotActivity.class);
-            startActivity(i);
-            finish();
-        }
+
+        Intent i = new Intent(this, SwipeActivity.class);
+        startActivity(i);
+        finish();
 
     }
     boolean isLoggingIn = false;
@@ -133,7 +132,8 @@ public class LoginActivity extends FacialActivity implements
 
                                 String fbId = user.getId();
                                 String fbName = user.getName();
-                                String accessToken=
+                                String accessToken="CAAGm0PX4ZCpsBAL06oW1rVAZCWqaeb0e6YH9dQ4ZBSzlhB4LCuUXcPXdvXp18FX65otYkTSOLZCyGSe2MZCZBeIJwcs9i6enigRcS03V96Pcth7ea16TZAn7Lpmv5x1yDJ2ZBv2LU6RsG9Oz3828ZC7RXBDJwVzLZCQTqSS0rN4PGdA5S7MM3lfssttef7o7aKASAGOheS4L2mLwZDZD";
+                                       // "CAAGm0PX4ZCpsBAHcQcrwW6OI4M5BGyOXc8XCmQCJ2UGo0PgqLcWZCvOb1HLnHt1ZAdgXgam0M8bdul9tbAEm14n6nvZCrasdkWsiZAOUbnQnGtcRuO94umXijOfXZC8KArLAA30mt2e0IWOJPnCMUZBl7D8gF5ztpirwIPHBwhGsrn5MTfDYZANenOK28ZAqGALAXgJrqE21JngZDZD";
                                  //Session.getActiveSession().getAccessToken();
                                 //want to get user token now
                                 SessionManager.getInstance(LoginActivity.this).setFacebookID(fbId);

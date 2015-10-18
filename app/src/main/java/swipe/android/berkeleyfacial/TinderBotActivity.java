@@ -1,11 +1,15 @@
 package swipe.android.berkeleyfacial;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -26,16 +30,20 @@ import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
 import swipe.android.berkeleyfacial.adapter.FacesAdapter;
 import swipe.android.berkeleyfacial.api.tinder.TinderRecommendationResponse;
+import swipe.android.berkeleyfacial.api.tinder.model.People;
 import swipe.android.berkeleyfacial.api.tinder.model.Photo;
 import swipe.android.berkeleyfacial.managers.APIManager;
+import swipe.android.berkeleyfacial.managers.SessionManager;
 import swipe.android.berkeleyfacial.model.Data;
 import swipe.android.berkeleyfacial.model.TinderBotProcessor;
 import swipe.android.berkeleyfacial.util.CSVFile;
@@ -62,10 +70,14 @@ public class TinderBotActivity extends FacialActivity implements
         setContentView(R.layout.activity_swipe);
 
         flingContainer = (SwipeFlingAdapterView) findViewById(R.id.frame);
-
+        setTitle("Bot Mode");
         al = new ArrayList<>();
+        //al = getIntent().getParcelableArrayListExtra("List");
+        loadData();
         myAppAdapter = new FacesAdapter(al, this);
         flingContainer.setAdapter(myAppAdapter);
+
+        myAppAdapter.notifyDataSetChanged();
         flingContainer.setFlingListener(new SwipeFlingAdapterView.onFlingListener() {
             @Override
             public void removeFirstObjectInAdapter() {
@@ -80,12 +92,12 @@ public class TinderBotActivity extends FacialActivity implements
 
             @Override
             public void onRightCardExit(Object dataObject) {
-   }
+            }
 
             @Override
             public void onAdapterAboutToEmpty(int itemsInAdapter) {
-                if (itemsInAdapter == 3) {//send it off
-loadData();
+                if (itemsInAdapter == 0) {//send it off
+                    loadData();
                 }
 
             }
@@ -112,26 +124,36 @@ loadData();
                 myAppAdapter.notifyDataSetChanged();
             }
         });
-
-        loadData();
     }
     public void loadData() {
-      //
-      //  APIManager.getInstance().recommendationTinder(this,this);
 
-            InputStream inputStream = getResources().openRawResource(R.raw.training_data);
+  //     APIManager.getInstance().recommendationTinder(this, this);
+al.clear();
+            InputStream inputStream = getResources().openRawResource(R.raw.training_data2);
             CSVFile csvFile = new CSVFile(inputStream);
 
-            List<String> scoreList = csvFile.read();
-            for(String s : scoreList)
-                al.add(new Data(s, "",false));
+            List<Data> scoreList = csvFile.read2();
+            for(Data s : scoreList)
+                al.add(s);
+
+        Collections.shuffle(al);
+        if(myAppAdapter != null)
             myAppAdapter.notifyDataSetChanged();
 
     }
+    LinkedList<String> checkedIds = new LinkedList<>();
     @Override
     public void onResponse(TinderRecommendationResponse tinderRecommendationResponse) {
         //add data to adapter
+checkedIds.clear();
+        for(People p : tinderRecommendationResponse.peeps){
+            ArrayList<Photo> k = p.photos;
+            for(Photo l : k) {
 
+                al.add(new Data(l.url, "", true));
+            }
+        }
+        Collections.shuffle(al);
         myAppAdapter.notifyDataSetChanged();
     }
 
@@ -176,11 +198,17 @@ public void onPause(){
                     public void run() {
                         Data s = (Data) myAppAdapter.getItem(0);
                        Boolean b = s.isIsrecommend();
-                        if(b) {//   APIManager.getInstance().like(s.getId(), TinderBotActivity.this,TinderBotActivity.this);
+                        if(b) {
+                            if(!checkedIds.contains(s.getId())){
+                           // APIManager.getInstance().like(s.getId(), TinderBotActivity.this,TinderBotActivity.this);
+                            checkedIds.add(s.getId());}
                             flingContainer.getTopCardListener().selectRight();
                             myAppAdapter.notifyDataSetChanged();
                         }
-                        else {  //APIManager.getInstance().dislike(s.getId(), TinderBotActivity.this,TinderBotActivity.this);
+                        else {
+                            if(!checkedIds.contains(s.getId())){
+                           // APIManager.getInstance().dislike(s.getId(), TinderBotActivity.this, TinderBotActivity.this);
+                                checkedIds.add(s.getId());}
 
                             flingContainer.getTopCardListener().selectLeft();
                             myAppAdapter.notifyDataSetChanged();
@@ -191,6 +219,35 @@ public void onPause(){
                 });
             }
         };
+    }
+
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater menuInflater = getMenuInflater();
+        menuInflater.inflate(R.menu.menu_login, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+        switch (item.getItemId()) {
+            case R.id.logout:
+                SessionManager.getInstance(this).clearAll();
+                APIManager.getInstance().stopQueue();
+                Intent i = new Intent(this, SwipeActivity.class);
+                i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+              //  LoginActivity.callFacebookLogout(SwipeActivity.this);
+
+                startActivity(i);
+                finish();
+
+                return true;
+
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 
 }

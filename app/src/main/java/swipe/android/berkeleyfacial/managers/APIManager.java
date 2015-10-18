@@ -29,7 +29,7 @@ import swipe.android.berkeleyfacial.api.tinder.TrainingBodyResponse;
 public class APIManager {
 
     //server name. Change to point to a production server or test server
-    private static final String BASE_TINDER_URL = "http://a14a1c8c.ngrok.io";
+    private static final String BASE_TINDER_URL = "http://88ece1bf.ngrok.io";
     static RequestQueue queue;
 
     private static APIManager instance;
@@ -41,7 +41,7 @@ public class APIManager {
         return "token="+SessionManager.getInstance(this.ctx).getToken();
     }
     public String loginURL(){
-        return BASE_TINDER_URL + "/login?"+defaultParams();
+        return BASE_TINDER_URL + "/login?";
     }
     public String trainingURL(){
         return BASE_TINDER_URL+"/train?"+defaultParams();
@@ -79,7 +79,7 @@ public class APIManager {
 
 
     public void signIn(Response.Listener successListener, Response.ErrorListener errorListener) {
-        String url = loginURL() + "?facebook_token="+ SessionManager.getInstance(APIManager.ctx).getFacebookToken() + "&facebook_id="
+        String url = loginURL() + "facebook_token="+ SessionManager.getInstance(APIManager.ctx).getFacebookToken() + "&facebook_id="
                 +SessionManager.getInstance(APIManager.ctx).getFacebookID();
         GsonRequest<LoginResponse> jsObjRequest = new GsonRequest<LoginResponse>(Request.Method.POST,
                url, LoginResponse.class, null, successListener, errorListener) {

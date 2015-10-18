@@ -23,6 +23,7 @@ import android.widget.Toast;
 import com.android.volley.Response;
 import com.bumptech.glide.Glide;
 import com.edbert.library.utils.OptionsManager;
+import com.google.gson.Gson;
 import com.nostra13.universalimageloader.core.ImageLoader;
 
 import org.json.JSONObject;
@@ -48,7 +49,7 @@ public class SwipeActivity extends FacialActivity implements
 
     public static FacesAdapter myAppAdapter;
     private ArrayList<Data> al;
-    private HashMap<String, Boolean> likesDislikes;
+    private ArrayList<Data> sendoff;
     private SwipeFlingAdapterView flingContainer;
 
 
@@ -56,9 +57,9 @@ public class SwipeActivity extends FacialActivity implements
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_swipe);
-
+setTitle("Training Mode");
         flingContainer = (SwipeFlingAdapterView) findViewById(R.id.frame);
-        likesDislikes = new HashMap<>();
+        sendoff = new ArrayList<>();
         al = new ArrayList<>();
         myAppAdapter = new FacesAdapter(al, this);
         flingContainer.setAdapter(myAppAdapter);
@@ -70,6 +71,9 @@ public class SwipeActivity extends FacialActivity implements
 
             @Override
             public void onLeftCardExit(Object dataObject) {
+                Data a = al.get(0);
+                a.isrecommend = false;
+                sendoff.add(a);
                 al.remove(0);
                 myAppAdapter.notifyDataSetChanged();
 
@@ -77,8 +81,9 @@ public class SwipeActivity extends FacialActivity implements
 
             @Override
             public void onRightCardExit(Object dataObject) {
-
-                //  likesDislikes.put(al.get(0), Boolean.valueOf(true));
+                Data a = al.get(0);
+                a.isrecommend = true;
+                sendoff.add(a);
                 al.remove(0);
                 myAppAdapter.notifyDataSetChanged();
             }
@@ -118,9 +123,15 @@ public class SwipeActivity extends FacialActivity implements
 
     }
     public void sendTrainingResults() {
-        onResponse(null);
-     //   JSONObject body = new JSONObject(likesDislikes);
-      //  APIManager.getInstance().submitTrainingData(body.toString(), this, this);
+      //  onResponse(null);
+        String json = new Gson().toJson(sendoff);
+        //Log.d("Body", json);
+        Intent i = new Intent(this, TinderBotActivity.class);
+        i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        i.putParcelableArrayListExtra("List", sendoff);
+        startActivity(i);
+        finish();
+        //APIManager.getInstance().submitTrainingData(json, this, this);
     }
 
     public void initDataSet() {
@@ -129,7 +140,7 @@ public class SwipeActivity extends FacialActivity implements
 
         List<String> scoreList = csvFile.read();
         for(String s : scoreList)
-            al.add(new Data(s, "",false));
+            al.add(new Data(s, s,false));
         myAppAdapter.notifyDataSetChanged();
     }
 
@@ -158,7 +169,7 @@ public class SwipeActivity extends FacialActivity implements
             case R.id.logout:
                 SessionManager.getInstance(this).clearAll();
                 APIManager.getInstance().stopQueue();
-                Intent i = new Intent(this, SwipeActivity.class);
+                Intent i = new Intent(this, LoginActivity.class);
                 i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                 LoginActivity.callFacebookLogout(SwipeActivity.this);
 

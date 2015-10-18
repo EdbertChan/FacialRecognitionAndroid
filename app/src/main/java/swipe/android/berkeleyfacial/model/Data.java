@@ -1,11 +1,15 @@
 package swipe.android.berkeleyfacial.model;
 
-public class Data {
+import android.os.Parcel;
+import android.os.Parcelable;
+
+public class Data implements Parcelable {
+
 
     private String imagePath;
 
     private String id;
-    private boolean isrecommend;
+    public boolean isrecommend;
 
     public Data(String imagePath, String id, boolean isrecommend) {
         this.imagePath = imagePath;
@@ -20,5 +24,37 @@ public boolean isIsrecommend(){return isrecommend;};
     public String getImagePath() {
         return imagePath;
     }
+    @Override
+    public int describeContents() {
+        return 0;
+    }
 
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+
+
+
+        dest.writeString(imagePath);
+        dest.writeString(id);
+        dest.writeString(String.valueOf(isrecommend));
+    }
+
+    // Creator
+    public static final Parcelable.Creator<Data> CREATOR
+            = new Parcelable.Creator<Data>() {
+        public Data createFromParcel(Parcel in) {
+            return new Data(in);
+        }
+
+        public Data[] newArray(int size) {
+            return new Data[size];
+        }
+    };
+
+    // "De-parcel object
+    public Data(Parcel in) {
+        imagePath = in.readString();
+        id = in.readString();
+        isrecommend = Boolean.valueOf(in.readString());
+    }
 }
